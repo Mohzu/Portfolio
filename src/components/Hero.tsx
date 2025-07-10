@@ -60,10 +60,15 @@ const Hero = () => {
                 See My Project
                 <ChevronDown size={20} />
               </button>
-              <button className="border-2 border-blue-500 text-blue-400 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base">
+              <a
+                href="https://drive.google.com/file/d/1i2Jq4g86WPLPXO89iu2d8ST53ppIn31T/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-2 border-blue-500 text-blue-400 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+              >
                 <Download size={20} />
                 Download CV
-              </button>
+              </a>
             </div>
           </div>
 
