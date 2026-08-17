@@ -1,83 +1,94 @@
-import React from 'react';
-import { Code, Smartphone, Globe, Zap } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { useLang } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
-const About = () => {
-  const highlights = [
-    {
-      icon: <Code className="w-8 h-8 text-blue-400" />,
-      title: "Frontend Development",
-      description: "Creating responsive and interactive user interfaces with modern frameworks like React, Vue, and Angular."
-    },
-    {
-      icon: <Smartphone className="w-8 h-8 text-cyan-400" />,
-      title: "Mobile Development",
-      description: "Building native and cross-platform mobile applications for iOS and Android using React Native and Flutter."
-    },
-    {
-      icon: <Globe className="w-8 h-8 text-blue-400" />,
-      title: "Full-Stack Solutions",
-      description: "Developing complete web applications with backend integration and modern cloud deployment."
-    },
-    {
-      icon: <Zap className="w-8 h-8 text-green-400" />,
-      title: "Performance Optimization",
-      description: "Ensuring fast load times and smooth user experiences through code optimization and best practices."
-    }
+const useReveal = (ref: React.RefObject<HTMLElement | null>, trigger?: any) => {
+  useEffect(() => {
+    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.07 });
+    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, [ref, trigger]);
+};
+
+export default function About() {
+  const ref = useRef<HTMLElement>(null);
+  const { t, lang } = useLang();
+  const { siteContent } = useData();
+  useReveal(ref, siteContent);
+  const h = t.about;
+
+  // Fallbacks
+  const headingText = siteContent ? (lang === 'en' ? siteContent.about_heading_en : siteContent.about_heading_id) : h.heading;
+  const p1Text = siteContent ? (lang === 'en' ? siteContent.about_p1_en : siteContent.about_p1_id) : h.p1;
+  const p2Text = siteContent ? (lang === 'en' ? siteContent.about_p2_en : siteContent.about_p2_id) : h.p2;
+
+  const stats = siteContent ? [
+    { value: siteContent.about_stats_proj_val, label: lang === 'en' ? siteContent.about_stats_proj_label_en : siteContent.about_stats_proj_label_id },
+    { value: siteContent.about_stats_years_val, label: lang === 'en' ? siteContent.about_stats_years_label_en : siteContent.about_stats_years_label_id },
+    { value: siteContent.about_stats_tech_val, label: lang === 'en' ? siteContent.about_stats_tech_label_en : siteContent.about_stats_tech_label_id },
+    { value: siteContent.about_stats_org_val, label: lang === 'en' ? siteContent.about_stats_org_label_en : siteContent.about_stats_org_label_id },
+  ] : [
+    { value: h.stats.projects.value, label: h.stats.projects.label },
+    { value: h.stats.years.value, label: h.stats.years.label },
+    { value: h.stats.tech.value, label: h.stats.tech.label },
+    { value: h.stats.orgs.value, label: h.stats.orgs.label },
   ];
 
   return (
-    <section id="about" className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-900 via-black to-gray-800">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent">
-              About Me
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
-              I'am a developer focused on frontend web development and mobile application development. With a passion for creating digital solutions that are both visually appealing and functional, I always strive to combine intuitive design with optimal performance to deliver the best possible user experience.
-            </p>
-          </div>
+    <section id="about" ref={ref} className="section-white">
+      <div className="section-container">
 
-          {/* Skills Tags */}
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-12 sm:mb-16">
-            <span className="px-3 sm:px-4 py-2 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm">
-              Problem Solver
-            </span>
-            <span className="px-3 sm:px-4 py-2 bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm">
-              Team Player
-            </span>
-            <span className="px-3 sm:px-4 py-2 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm">
-              Continuous Learner
-            </span>
-            <span className="px-3 sm:px-4 py-2 bg-green-600/20 text-green-300 border border-green-500/30 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm">
-              Innovation Focused
-            </span>
-          </div>
+        {/* Section masthead */}
+        <div className="reveal section-masthead" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <span className="ed-kicker">01 — {h.label}</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.8125rem', fontStyle: 'italic', color: '#8B8480' }}>About the author</span>
+        </div>
 
-          {/* Highlights Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {highlights.map((highlight, index) => (
-              <div
-                key={index}
-                className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-2xl hover:shadow-blue-500/10"
-              >
-                <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                  {highlight.icon}
-                </div>
-                <h4 className="text-lg sm:text-xl font-semibold mb-3 text-white">
-                  {highlight.title}
-                </h4>
-                <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
-                  {highlight.description}
-                </p>
+        {/* 2-col layout: headline + copy */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '2.5rem 5rem', marginBottom: '3rem' }}>
+          <div>
+            <h2 className="reveal ed-subhead">{headingText}</h2>
+          </div>
+          <div>
+            <p className="reveal reveal-delay-1 ed-body" style={{ marginBottom: '1rem' }} dangerouslySetInnerHTML={{ __html: p1Text }} />
+            <p className="reveal reveal-delay-2 ed-body" style={{ marginBottom: '1.25rem' }} dangerouslySetInnerHTML={{ __html: p2Text }} />
+            <div className="reveal reveal-delay-3" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {h.tags.map(tag => <span key={tag} className="skill-badge">{tag}</span>)}
+            </div>
+          </div>
+        </div>
+
+        {/* Divider with pull quote style */}
+        <div className="reveal" style={{ borderTop: '1px solid #D4CFC8', borderBottom: '1px solid #D4CFC8', padding: '2rem 0', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0', textAlign: 'center' }}>
+            {stats.map((s, i, arr) => (
+              <div key={s.label} style={{ padding: '0 2rem', borderRight: i < arr.length - 1 ? '1px solid #D4CFC8' : 'none' }}>
+                <div className="stat-value">{s.value}</div>
+                <div className="stat-label">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Highlights — 4-col grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '0', border: '1px solid #D4CFC8' }}>
+          {h.highlights.map((item, i) => (
+            <div key={i} className={`reveal reveal-delay-${i + 1}`}
+              style={{ padding: '1.5rem', borderRight: i < h.highlights.length - 1 ? '1px solid #D4CFC8' : 'none', transition: 'background 180ms', cursor: 'default' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#F7F4EF'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              {/* No icon — typographic marker */}
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8B1A1A', marginBottom: '0.75rem' }}>
+                — {String(i + 1).padStart(2, '0')}
+              </p>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.0625rem', color: '#1A1916', marginBottom: '0.5rem' }}>{item.title}</h3>
+              <p className="ed-body" style={{ fontSize: '0.875rem' }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );
-};
-
-export default About;
+}

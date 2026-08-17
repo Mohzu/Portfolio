@@ -1,105 +1,149 @@
-import React from 'react';
-import { ChevronDown, Download, Mail } from 'lucide-react';
-import ProfileCard from './ProfileCard'; 
+import React, { useEffect, useRef } from 'react';
+import ProfileCard from './ProfileCard';
+import { useLang } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
 const Hero = () => {
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const { t, lang } = useLang();
+  const { siteContent } = useData();
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      heroRef.current?.querySelectorAll('.hero-anim').forEach((el, i) => {
+        setTimeout(() => el.classList.add('hero-visible'), i * 100);
+      });
+    }, 80);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+
+  // Fallback to defaults if context is not loaded yet
+  const availableText = siteContent ? (lang === 'en' ? siteContent.hero_available_en : siteContent.hero_available_id) : t.hero.available;
+  const greetingText = siteContent ? (lang === 'en' ? siteContent.hero_greeting_en : siteContent.hero_greeting_id) : t.hero.greeting;
+  const roleText = siteContent ? (lang === 'en' ? siteContent.hero_role_en : siteContent.hero_role_id) : t.hero.role;
+  const descriptionText = siteContent ? (lang === 'en' ? siteContent.hero_description_en : siteContent.hero_description_id) : t.hero.description;
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-gray-800 pt-20 sm:pt-0">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 sm:top-20 left-4 sm:left-20 w-48 sm:w-96 h-48 sm:h-96 bg-blue-600/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div className="absolute top-20 sm:top-40 right-4 sm:right-20 w-48 sm:w-96 h-48 sm:h-96 bg-cyan-600/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-10 sm:bottom-20 left-1/2 w-48 sm:w-96 h-48 sm:h-96 bg-blue-600/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"></div>
-      </div>
+    <section id="home" ref={heroRef} style={{
+      background: '#F7F4EF',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      position: 'relative',
+      paddingTop: '5.5rem',
+      paddingBottom: '3rem',
+    }}>
+      <div style={{ maxWidth: 1160, margin: '0 auto', width: '100%', padding: '0 clamp(1.5rem, 5vw, 3rem)' }}>
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/30 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`
-            }}
-          />
-        ))}
-      </div>
+        {/* MASTHEAD — newspaper top bar */}
+        <div className="hero-anim" style={{ borderTop: '3px solid #1A1916', borderBottom: '1px solid #1A1916', padding: '0.5rem 0', marginBottom: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', align: 'center', gap: '1.5rem' }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#8B8480' }}>Vol. 2025</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', color: '#C9C5BC' }}>·</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8B8480' }}>Bandung, Jawa Barat</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8B1A1A' }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#8B1A1A', animation: 'pulse 2.5s infinite' }} />
+              {availableText}
+            </span>
+          </div>
+        </div>
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Left Side - Content */}
-          <div className="text-left">
-            <div className="mb-6 sm:mb-8 animate-fade-in">
-              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent animate-slide-up leading-tight">
+        {/* Main grid: headline left + card right */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '3rem', alignItems: 'start' }}>
+
+          {/* LEFT: editorial content */}
+          <div>
+            {/* Kicker */}
+            <div className="hero-anim" style={{ transitionDelay: '0.08s', marginBottom: '0.875rem' }}>
+              <span className="ed-kicker">{greetingText}</span>
+            </div>
+
+            {/* Big headline — 2 lines */}
+            <div className="hero-anim" style={{ transitionDelay: '0.16s', marginBottom: '1.25rem' }}>
+              <h1 className="ed-headline" style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.75rem)' }}>
                 Moch Zuhdi<br />
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Maulana Nabilah
-                </span>
+                <em style={{ fontStyle: 'italic', color: '#3A3530' }}>Maulana Nabilah</em>
               </h1>
-              <p className="text-base sm:text-xl lg:text-2xl text-gray-300 mb-6 sm:mb-8 animate-slide-up delay-300 leading-relaxed">
-                Frontend & Mobile Developer – Creating digital solutions that are both aesthetic and functional, from the web screen to the palm of your hand.
+            </div>
+
+            {/* Deck — subheading */}
+            <div className="hero-anim" style={{ transitionDelay: '0.22s', marginBottom: '1.5rem', borderLeft: '3px solid #8B1A1A', paddingLeft: '1rem' }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.0625rem, 2vw, 1.375rem)', fontStyle: 'italic', color: '#3A3530', lineHeight: 1.4, margin: 0 }}>
+                {roleText}
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12 animate-slide-up delay-500">
-              <button
-                onClick={() => scrollToSection('projects')}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
-              >
-                See My Project
-                <ChevronDown size={20} />
+            {/* Divider */}
+            <hr className="hero-anim col-rule" style={{ transitionDelay: '0.28s', margin: '1.5rem 0' }} />
+
+            {/* Body copy — description */}
+            <div className="hero-anim" style={{ transitionDelay: '0.32s', marginBottom: '2rem', maxWidth: '36rem' }}>
+              <p className="ed-body">{descriptionText}</p>
+            </div>
+
+            {/* CTA row */}
+            <div className="hero-anim" style={{ transitionDelay: '0.38s', display: 'flex', gap: '0.875rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
+              <button onClick={() => scrollTo('projects')} className="btn-primary">
+                {t.hero.cta_projects} →
               </button>
               <a
                 href="https://drive.google.com/file/d/1MbItkNmiDXwZKqLcK8rfcFbKdiCeLxlp/view?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border-2 border-blue-500 text-blue-400 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+                target="_blank" rel="noopener noreferrer" className="btn-outline"
               >
-                <Download size={20} />
-                Download CV
+                {t.hero.cta_cv} ↓
               </a>
+            </div>
+
+            {/* Byline row */}
+            <div className="hero-anim" style={{ transitionDelay: '0.44s' }}>
+              <p className="ed-byline">
+                mochzuhdi04@gmail.com
+                <span style={{ margin: '0 0.75rem', opacity: 0.35 }}>·</span>
+                <a href="https://github.com/Mohzu" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>github.com/Mohzu</a>
+                <span style={{ margin: '0 0.75rem', opacity: 0.35 }}>·</span>
+                <a href="https://linkedin.com/in/moch-zuhdi-maulana-nabilah-b3219229b" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>LinkedIn</a>
+              </p>
             </div>
           </div>
 
-          {/* Right Side - Profile Card */}
-          <div className="relative animate-fade-in delay-300 order-first lg:order-last flex justify-center items-center">
-            <ProfileCard
-              name="Moch Zuhdi Maulana Nabilah" 
-              title="Frontend & Mobile Developer" 
-              handle="mochzuhdi" 
-              status="Online" 
-              contactText="Connect with Me" 
-              avatarUrl="/img/zuhdi.png" 
-              showUserInfo={true}
-              enableTilt={true}
-              onContactClick={() => {
-                scrollToSection('contact');
-              }}
-            />
+          {/* RIGHT: ProfileCard */}
+          <div className="hero-anim" style={{ transitionDelay: '0.20s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ border: '1px solid #D4CFC8', padding: '4px', background: '#FDFCFA' }}>
+              <ProfileCard
+                name="Moch Zuhdi Maulana Nabilah"
+                title={roleText}
+                handle="mochzuhdi"
+                status={availableText}
+                contactText={t.hero.cta_projects}
+                avatarUrl="/img/zuhdi.png"
+                showUserInfo={true}
+                enableTilt={true}
+                showBehindGradient={false}
+                onContactClick={() => scrollTo('contact')}
+              />
+            </div>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8B8480', textAlign: 'center' }}>
+              Frontend &amp; Mobile Developer
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <button
-          onClick={() => scrollToSection('about')}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300"
-        >
-          <ChevronDown size={24} className="text-white" />
-        </button>
-      </div>
+      {/* Responsive: stack card below on mobile */}
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @media (max-width: 700px) {
+          #home > div { display: flex !important; flex-direction: column !important; }
+          #home > div > div:first-child { grid-template-columns: 1fr !important; }
+          #home > div > div:first-child > div:last-child { order: -1; }
+        }
+      `}</style>
     </section>
   );
 };
