@@ -87,9 +87,15 @@ export default function Certificates() {
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.375rem', fontWeight: 700, color: '#1A1916', margin: '0 0 0.5rem' }}>{selected.name}</h2>
             <p className="ed-body" style={{ color: '#57534E', marginBottom: '0.25rem' }}>{selected.issuer}</p>
             <p className="ed-byline" style={{ fontSize: '0.6875rem', marginBottom: '1.5rem' }}>{c.issued} {selected.year}</p>
-            <div style={{ border: '1px dashed #D4CFC8', padding: '1.25rem', textAlign: 'center', fontSize: '0.8125rem', color: '#8B8480', background: '#F7F4EF' }}>
-              {c.not_available}
-            </div>
+            {selected.image ? (
+              <div style={{ background: '#EAE8E3', border: '1px solid #D4CFC8', marginBottom: '1.5rem', maxHeight: '320px', overflow: 'hidden' }}>
+                <img src={selected.image} alt={selected.name} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} />
+              </div>
+            ) : (
+              <div style={{ border: '1px dashed #D4CFC8', padding: '1.25rem', textAlign: 'center', fontSize: '0.8125rem', color: '#8B8480', background: '#F7F4EF', marginBottom: '1.5rem' }}>
+                {c.not_available}
+              </div>
+            )}
           </div>
         </div>
       )}

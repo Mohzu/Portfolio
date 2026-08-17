@@ -113,9 +113,13 @@ export default function Experience() {
                     onMouseEnter={e => { e.currentTarget.style.background = '#F7F4EF'; e.currentTarget.style.paddingLeft = '0.75rem'; e.currentTarget.style.paddingRight = '0.75rem'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.paddingLeft = '0'; e.currentTarget.style.paddingRight = '0'; }}
                   >
-                    {/* Column marker */}
-                    <div>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: '1.375rem', color: '#1A1916', lineHeight: 1 }}>{cfg.marker}</span>
+                    {/* Column marker or logo */}
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '0.125rem' }}>
+                      {item.logo ? (
+                        <img src={item.logo} alt={item.organization} style={{ width: 28, height: 28, objectFit: 'contain', border: '1px solid #D4CFC8', background: '#FDFCFA' }} />
+                      ) : (
+                        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: '1.375rem', color: '#1A1916', lineHeight: 1 }}>{cfg.marker}</span>
+                      )}
                     </div>
                     {/* Content */}
                     <div>

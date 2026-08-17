@@ -19,6 +19,7 @@ export interface ExperienceData {
   type: 'Internship' | 'Organization' | 'Community';
   contributions_en: string[];
   contributions_id: string[];
+  logo?: string;
 }
 
 export interface CertificateData {
@@ -27,6 +28,7 @@ export interface CertificateData {
   issuer: string;
   year: string;
   category: string;
+  image?: string;
 }
 
 export interface InboxMessage {

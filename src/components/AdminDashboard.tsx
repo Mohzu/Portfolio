@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   // Project form states
   const [editingProj, setEditingProj] = useState<ProjectData | null>(null);
   const [projForm, setProjForm] = useState({
-    title: '', image: '/img/educationzone.svg', category: 'web' as 'web'|'mobile'|'game',
+    title: '', image: '', category: 'web' as 'web'|'mobile'|'game',
     tech: '', github: '', description_en: '', description_id: ''
   });
 
@@ -40,13 +40,13 @@ export default function AdminDashboard() {
   const [editingExp, setEditingExp] = useState<ExperienceData | null>(null);
   const [expForm, setExpForm] = useState({
     organization: '', position: '', period: '', type: 'Internship' as 'Internship'|'Organization'|'Community',
-    contributions_en: '', contributions_id: ''
+    contributions_en: '', contributions_id: '', logo: ''
   });
 
   // Certificate form states
   const [editingCert, setEditingCert] = useState<CertificateData | null>(null);
   const [certForm, setCertForm] = useState({
-    name: '', issuer: '', year: '', category: 'Frontend'
+    name: '', issuer: '', year: '', category: 'Frontend', image: ''
   });
 
   const showNotification = (msg: string) => {
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
       showNotification('Project created successfully!');
     }
 
-    setProjForm({ title: '', image: '/img/educationzone.svg', category: 'web', tech: '', github: '', description_en: '', description_id: '' });
+    setProjForm({ title: '', image: '', category: 'web', tech: '', github: '', description_en: '', description_id: '' });
   };
 
   const handleExpSubmit = (e: React.FormEvent) => {
@@ -110,7 +110,8 @@ export default function AdminDashboard() {
       period: expForm.period,
       type: expForm.type,
       contributions_en: contrEn,
-      contributions_id: contrId
+      contributions_id: contrId,
+      logo: expForm.logo || undefined
     };
 
     if (editingExp) {
@@ -122,7 +123,7 @@ export default function AdminDashboard() {
       showNotification('Experience created successfully!');
     }
 
-    setExpForm({ organization: '', position: '', period: '', type: 'Internship', contributions_en: '', contributions_id: '' });
+    setExpForm({ organization: '', position: '', period: '', type: 'Internship', contributions_en: '', contributions_id: '', logo: '' });
   };
 
   const handleCertSubmit = (e: React.FormEvent) => {
@@ -131,7 +132,8 @@ export default function AdminDashboard() {
       name: certForm.name,
       issuer: certForm.issuer,
       year: certForm.year,
-      category: certForm.category
+      category: certForm.category,
+      image: certForm.image || undefined
     };
 
     if (editingCert) {
@@ -143,7 +145,7 @@ export default function AdminDashboard() {
       showNotification('Certificate created successfully!');
     }
 
-    setCertForm({ name: '', issuer: '', year: '', category: 'Frontend' });
+    setCertForm({ name: '', issuer: '', year: '', category: 'Frontend', image: '' });
   };
 
   const startEditProj = (p: ProjectData) => {
@@ -167,7 +169,8 @@ export default function AdminDashboard() {
       period: exp.period,
       type: exp.type,
       contributions_en: exp.contributions_en.join('\n'),
-      contributions_id: exp.contributions_id.join('\n')
+      contributions_id: exp.contributions_id.join('\n'),
+      logo: exp.logo || ''
     });
   };
 
@@ -177,7 +180,8 @@ export default function AdminDashboard() {
       name: c.name,
       issuer: c.issuer,
       year: c.year,
-      category: c.category
+      category: c.category,
+      image: c.image || ''
     });
   };
 
@@ -569,8 +573,16 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <label style={labelStyle}>Tech Stack (comma separated)</label>
-                <input type="text" placeholder="React, TypeScript, CSS" value={projForm.tech} onChange={e => setProjForm({...projForm, tech: e.target.value})} style={inputStyle} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Image URL</label>
+                    <input type="text" placeholder="e.g. /img/custom.svg or HTTPS URL" value={projForm.image} onChange={e => setProjForm({...projForm, image: e.target.value})} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Tech Stack (comma separated)</label>
+                    <input type="text" placeholder="React, TypeScript, CSS" value={projForm.tech} onChange={e => setProjForm({...projForm, tech: e.target.value})} style={inputStyle} />
+                  </div>
+                </div>
 
                 <label style={labelStyle}>Description (EN)</label>
                 <textarea required placeholder="Write English overview..." value={projForm.description_en} onChange={e => setProjForm({...projForm, description_en: e.target.value})} style={{ ...inputStyle, height: '70px', resize: 'none' }} />
@@ -583,7 +595,7 @@ export default function AdminDashboard() {
                     {editingProj ? 'Save Changes' : 'Publish Entry'}
                   </button>
                   {editingProj && (
-                    <button type="button" onClick={() => { setEditingProj(null); setProjForm({ title: '', image: '/img/educationzone.svg', category: 'web', tech: '', github: '', description_en: '', description_id: '' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={() => { setEditingProj(null); setProjForm({ title: '', image: '', category: 'web', tech: '', github: '', description_en: '', description_id: '' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
                   )}
                 </div>
               </form>
@@ -630,12 +642,20 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <label style={labelStyle}>Type</label>
-                <select value={expForm.type} onChange={e => setExpForm({...expForm, type: e.target.value as any})} style={inputStyle}>
-                  <option value="Internship">Internship (Magang)</option>
-                  <option value="Organization">Organization (Organisasi)</option>
-                  <option value="Community">Community (Komunitas)</option>
-                </select>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Type</label>
+                    <select value={expForm.type} onChange={e => setExpForm({...expForm, type: e.target.value as any})} style={inputStyle}>
+                      <option value="Internship">Internship (Magang)</option>
+                      <option value="Organization">Organization (Organisasi)</option>
+                      <option value="Community">Community (Komunitas)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Company Logo URL</label>
+                    <input type="text" placeholder="e.g. /img/company.png or HTTPS URL" value={expForm.logo} onChange={e => setExpForm({...expForm, logo: e.target.value})} style={inputStyle} />
+                  </div>
+                </div>
 
                 <label style={labelStyle}>Contributions (EN) (One per line)</label>
                 <textarea required placeholder="Developed features..." value={expForm.contributions_en} onChange={e => setExpForm({...expForm, contributions_en: e.target.value})} style={{ ...inputStyle, height: '70px', resize: 'none' }} />
@@ -648,7 +668,7 @@ export default function AdminDashboard() {
                     {editingExp ? 'Save Changes' : 'Publish Entry'}
                   </button>
                   {editingExp && (
-                    <button type="button" onClick={() => { setEditingExp(null); setExpForm({ organization: '', position: '', period: '', type: 'Internship', contributions_en: '', contributions_id: '' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={() => { setEditingExp(null); setExpForm({ organization: '', position: '', period: '', type: 'Internship', contributions_en: '', contributions_id: '', logo: '' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
                   )}
                 </div>
               </form>
@@ -695,15 +715,23 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <label style={labelStyle}>Category</label>
-                <input type="text" required placeholder="e.g. Frontend, Backend, Tools" value={certForm.category} onChange={e => setCertForm({...certForm, category: e.target.value})} style={inputStyle} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Category</label>
+                    <input type="text" required placeholder="e.g. Frontend, Backend, Tools" value={certForm.category} onChange={e => setCertForm({...certForm, category: e.target.value})} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Certificate Image URL</label>
+                    <input type="text" placeholder="e.g. /img/cert.png or HTTPS URL" value={certForm.image} onChange={e => setCertForm({...certForm, image: e.target.value})} style={inputStyle} />
+                  </div>
+                </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button type="submit" className="btn-primary" style={{ flex: 1, padding: '0.625rem', fontSize: '0.8125rem' }}>
                     {editingCert ? 'Save Changes' : 'Publish Entry'}
                   </button>
                   {editingCert && (
-                    <button type="button" onClick={() => { setEditingCert(null); setCertForm({ name: '', issuer: '', year: '', category: 'Frontend' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
+                    <button type="button" onClick={() => { setEditingCert(null); setCertForm({ name: '', issuer: '', year: '', category: 'Frontend', image: '' }); }} style={{ background: 'transparent', border: '1px solid #D4CFC8', padding: '0.625rem 1.25rem', fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
                   )}
                 </div>
               </form>
