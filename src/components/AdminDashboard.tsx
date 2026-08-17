@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useData, ProjectData, ExperienceData, CertificateData, EditableSiteContent } from '../context/DataContext';
+import { supabase, uploadMedia } from '../supabaseClient';
 
 type Tab = 'general' | 'projects' | 'experience' | 'certificates' | 'inbox';
 
@@ -29,6 +30,25 @@ export default function AdminDashboard() {
     }
   }, [siteContent]);
 
+  // Check and listen to Supabase Auth Session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsLoggedIn(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Project form states
   const [editingProj, setEditingProj] = useState<ProjectData | null>(null);
   const [projForm, setProjForm] = useState({
@@ -56,14 +76,64 @@ export default function AdminDashboard() {
     }, 3000);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username.trim().toLowerCase() === 'admin' && password === 'admin') {
-      setIsLoggedIn(true);
-      setError('');
-      showNotification('Access Granted. Welcome back, Editor!');
+  const [uploadingProjImg, setUploadingProjImg] = useState(false);
+  const [uploadingExpLogo, setUploadingExpLogo] = useState(false);
+  const [uploadingCertImg, setUploadingCertImg] = useState(false);
+
+  const handleProjImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingProjImg(true);
+    const url = await uploadMedia(file);
+    if (url) {
+      setProjForm(prev => ({ ...prev, image: url }));
+      showNotification('Project image uploaded successfully!');
     } else {
-      setError('Incorrect Username or Password. Try admin / admin');
+      showNotification('Failed to upload project image.');
+    }
+    setUploadingProjImg(false);
+  };
+
+  const handleExpLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingExpLogo(true);
+    const url = await uploadMedia(file);
+    if (url) {
+      setExpForm(prev => ({ ...prev, logo: url }));
+      showNotification('Company logo uploaded successfully!');
+    } else {
+      showNotification('Failed to upload company logo.');
+    }
+    setUploadingExpLogo(false);
+  };
+
+  const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCertImg(true);
+    const url = await uploadMedia(file);
+    if (url) {
+      setCertForm(prev => ({ ...prev, image: url }));
+      showNotification('Certificate image uploaded successfully!');
+    } else {
+      showNotification('Failed to upload certificate image.');
+    }
+    setUploadingCertImg(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: username.trim(),
+      password: password
+    });
+    if (authError) {
+      setError(authError.message);
+    } else {
+      setIsLoggedIn(true);
+      showNotification('Access Granted. Welcome back, Editor!');
     }
   };
 
@@ -263,11 +333,11 @@ export default function AdminDashboard() {
           </div>
 
           <form onSubmit={handleLogin}>
-            <label style={labelStyle}>Username</label>
-            <input type="text" placeholder="Enter username (admin)" value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} required />
+            <label style={labelStyle}>Email Address</label>
+            <input type="email" placeholder="Enter admin email" value={username} onChange={e => setUsername(e.target.value)} style={inputStyle} required />
 
             <label style={labelStyle}>Password</label>
-            <input type="password" placeholder="Enter password (admin)" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} required />
+            <input type="password" placeholder="Enter admin password" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} required />
 
             {error && <p style={{ color: '#8B1A1A', fontSize: '0.75rem', fontWeight: 600, marginBottom: '1rem', textAlign: 'center' }}>{error}</p>}
 
@@ -350,7 +420,7 @@ export default function AdminDashboard() {
           }}>
             ← View Site
           </a>
-          <button onClick={() => setIsLoggedIn(false)} style={{
+          <button onClick={async () => { await supabase.auth.signOut(); setIsLoggedIn(false); }} style={{
             background: 'transparent', border: '1px solid rgba(247,244,239,0.3)', color: '#C9C5BC',
             padding: '0.625rem', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer'
           }}>
@@ -575,8 +645,24 @@ export default function AdminDashboard() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label style={labelStyle}>Image URL</label>
-                    <input type="text" placeholder="e.g. /img/custom.svg or HTTPS URL" value={projForm.image} onChange={e => setProjForm({...projForm, image: e.target.value})} style={inputStyle} />
+                    <label style={labelStyle}>Image (Upload or paste URL)</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                      <input type="text" placeholder="e.g. /img/custom.svg or HTTPS URL" value={projForm.image} onChange={e => setProjForm({...projForm, image: e.target.value})} style={{ ...inputStyle, marginBottom: 0, flex: 1 }} />
+                      <label style={{
+                        background: '#1A1916', color: '#F7F4EF', border: '1px solid #1A1916',
+                        padding: '0.625rem 1rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', height: '38px', boxSizing: 'border-box'
+                      }}>
+                        {uploadingProjImg ? 'Uploading...' : 'Browse...'}
+                        <input type="file" accept="image/*" onChange={handleProjImageUpload} style={{ display: 'none' }} disabled={uploadingProjImg} />
+                      </label>
+                    </div>
+                    {projForm.image && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                        <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#8B8480' }}>PREVIEW:</span>
+                        <img src={projForm.image} alt="Preview" style={{ height: '30px', maxWidth: '80px', objectFit: 'contain', border: '1px solid #D4CFC8', background: '#FDFCFA' }} />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label style={labelStyle}>Tech Stack (comma separated)</label>
@@ -652,8 +738,24 @@ export default function AdminDashboard() {
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>Company Logo URL</label>
-                    <input type="text" placeholder="e.g. /img/company.png or HTTPS URL" value={expForm.logo} onChange={e => setExpForm({...expForm, logo: e.target.value})} style={inputStyle} />
+                    <label style={labelStyle}>Company Logo (Upload or paste URL)</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                      <input type="text" placeholder="e.g. /img/company.png or HTTPS URL" value={expForm.logo} onChange={e => setExpForm({...expForm, logo: e.target.value})} style={{ ...inputStyle, marginBottom: 0, flex: 1 }} />
+                      <label style={{
+                        background: '#1A1916', color: '#F7F4EF', border: '1px solid #1A1916',
+                        padding: '0.625rem 1rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', height: '38px', boxSizing: 'border-box'
+                      }}>
+                        {uploadingExpLogo ? 'Uploading...' : 'Browse...'}
+                        <input type="file" accept="image/*" onChange={handleExpLogoUpload} style={{ display: 'none' }} disabled={uploadingExpLogo} />
+                      </label>
+                    </div>
+                    {expForm.logo && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                        <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#8B8480' }}>PREVIEW:</span>
+                        <img src={expForm.logo} alt="Preview" style={{ height: '30px', maxWidth: '80px', objectFit: 'contain', border: '1px solid #D4CFC8', background: '#FDFCFA' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -721,8 +823,24 @@ export default function AdminDashboard() {
                     <input type="text" required placeholder="e.g. Frontend, Backend, Tools" value={certForm.category} onChange={e => setCertForm({...certForm, category: e.target.value})} style={inputStyle} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Certificate Image URL</label>
-                    <input type="text" placeholder="e.g. /img/cert.png or HTTPS URL" value={certForm.image} onChange={e => setCertForm({...certForm, image: e.target.value})} style={inputStyle} />
+                    <label style={labelStyle}>Certificate Image (Upload or paste URL)</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                      <input type="text" placeholder="e.g. /img/cert.png or HTTPS URL" value={certForm.image} onChange={e => setCertForm({...certForm, image: e.target.value})} style={{ ...inputStyle, marginBottom: 0, flex: 1 }} />
+                      <label style={{
+                        background: '#1A1916', color: '#F7F4EF', border: '1px solid #1A1916',
+                        padding: '0.625rem 1rem', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', height: '38px', boxSizing: 'border-box'
+                      }}>
+                        {uploadingCertImg ? 'Uploading...' : 'Browse...'}
+                        <input type="file" accept="image/*" onChange={handleCertImageUpload} style={{ display: 'none' }} disabled={uploadingCertImg} />
+                      </label>
+                    </div>
+                    {certForm.image && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                        <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#8B8480' }}>PREVIEW:</span>
+                        <img src={certForm.image} alt="Preview" style={{ height: '30px', maxWidth: '80px', objectFit: 'contain', border: '1px solid #D4CFC8', background: '#FDFCFA' }} />
+                      </div>
+                    )}
                   </div>
                 </div>
 

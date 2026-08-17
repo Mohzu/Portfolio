@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../supabaseClient';
 
 export interface ProjectData {
   id: number;
@@ -258,119 +259,147 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [inbox, setInbox] = useState<InboxMessage[]>([]);
   const [siteContent, setSiteContent] = useState<EditableSiteContent>(defaultSiteContent);
 
+  const fetchAllData = async () => {
+    try {
+      // 1. Fetch siteContent
+      const { data: scData, error: scErr } = await supabase.from('site_content').select('*').eq('id', 1).single();
+      if (scData) {
+        setSiteContent(scData);
+      } else if (scErr) {
+        console.error('Error fetching site content:', scErr);
+      }
+
+      // 2. Fetch projects
+      const { data: projData } = await supabase.from('projects').select('*').order('id', { ascending: true });
+      if (projData) setProjects(projData);
+
+      // 3. Fetch experiences
+      const { data: expData } = await supabase.from('experiences').select('*').order('id', { ascending: true });
+      if (expData) setExperiences(expData);
+
+      // 4. Fetch certificates
+      const { data: certData } = await supabase.from('certificates').select('*').order('id', { ascending: true });
+      if (certData) setCertificates(certData);
+
+      // 5. Fetch inbox
+      const { data: inboxData } = await supabase.from('inbox').select('*').order('created_at', { ascending: false });
+      if (inboxData) {
+        setInbox(inboxData.map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          email: m.email,
+          subject: m.subject,
+          message: m.message,
+          date: new Date(m.created_at || m.date).toLocaleString()
+        })));
+      }
+    } catch (err) {
+      console.error('Error synchronizing with Supabase:', err);
+    }
+  };
+
   useEffect(() => {
-    // Load from localStorage or set defaults
-    const localProj = localStorage.getItem('portfolio_projects');
-    const localExp = localStorage.getItem('portfolio_experience');
-    const localCert = localStorage.getItem('portfolio_certificates');
-    const localInbox = localStorage.getItem('portfolio_inbox');
-    const localContent = localStorage.getItem('portfolio_site_content');
-
-    if (localProj) setProjects(JSON.parse(localProj));
-    else { setProjects(defaultProjects); localStorage.setItem('portfolio_projects', JSON.stringify(defaultProjects)); }
-
-    if (localExp) setExperiences(JSON.parse(localExp));
-    else { setExperiences(defaultExperiences); localStorage.setItem('portfolio_experience', JSON.stringify(defaultExperiences)); }
-
-    if (localCert) setCertificates(JSON.parse(localCert));
-    else { setCertificates(defaultCertificates); localStorage.setItem('portfolio_certificates', JSON.stringify(defaultCertificates)); }
-
-    if (localInbox) setInbox(JSON.parse(localInbox));
-    else { setInbox([]); localStorage.setItem('portfolio_inbox', JSON.stringify([])); }
-
-    if (localContent) setSiteContent(JSON.parse(localContent));
-    else { setSiteContent(defaultSiteContent); localStorage.setItem('portfolio_site_content', JSON.stringify(defaultSiteContent)); }
+    fetchAllData();
   }, []);
 
-  const saveAndSetProjects = (newProj: ProjectData[]) => {
-    setProjects(newProj);
-    localStorage.setItem('portfolio_projects', JSON.stringify(newProj));
+  const addProject = async (p: Omit<ProjectData, 'id'>) => {
+    const { error } = await supabase.from('projects').insert([p]);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const saveAndSetExperiences = (newExp: ExperienceData[]) => {
-    setExperiences(newExp);
-    localStorage.setItem('portfolio_experience', JSON.stringify(newExp));
+  const updateProject = async (p: ProjectData) => {
+    const { error } = await supabase.from('projects').update(p).eq('id', p.id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const saveAndSetCertificates = (newCert: CertificateData[]) => {
-    setCertificates(newCert);
-    localStorage.setItem('portfolio_certificates', JSON.stringify(newCert));
+  const deleteProject = async (id: number) => {
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const saveAndSetInbox = (newInbox: InboxMessage[]) => {
-    setInbox(newInbox);
-    localStorage.setItem('portfolio_inbox', JSON.stringify(newInbox));
+  const addExperience = async (e: Omit<ExperienceData, 'id'>) => {
+    const { error } = await supabase.from('experiences').insert([e]);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const saveAndSetSiteContent = (newContent: EditableSiteContent) => {
-    setSiteContent(newContent);
-    localStorage.setItem('portfolio_site_content', JSON.stringify(newContent));
+  const updateExperience = async (e: ExperienceData) => {
+    const { error } = await supabase.from('experiences').update(e).eq('id', e.id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const addProject = (p: Omit<ProjectData, 'id'>) => {
-    const newId = projects.length > 0 ? Math.max(...projects.map(pr => pr.id)) + 1 : 1;
-    saveAndSetProjects([...projects, { ...p, id: newId }]);
+  const deleteExperience = async (id: number) => {
+    const { error } = await supabase.from('experiences').delete().eq('id', id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const updateProject = (p: ProjectData) => {
-    saveAndSetProjects(projects.map(pr => pr.id === p.id ? p : pr));
+  const addCertificate = async (c: Omit<CertificateData, 'id'>) => {
+    const { error } = await supabase.from('certificates').insert([c]);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const deleteProject = (id: number) => {
-    saveAndSetProjects(projects.filter(pr => pr.id !== id));
+  const updateCertificate = async (c: CertificateData) => {
+    const { error } = await supabase.from('certificates').update(c).eq('id', c.id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const addExperience = (e: Omit<ExperienceData, 'id'>) => {
-    const newId = experiences.length > 0 ? Math.max(...experiences.map(ex => ex.id)) + 1 : 1;
-    saveAndSetExperiences([...experiences, { ...e, id: newId }]);
+  const deleteCertificate = async (id: number) => {
+    const { error } = await supabase.from('certificates').delete().eq('id', id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const updateExperience = (e: ExperienceData) => {
-    saveAndSetExperiences(experiences.map(ex => ex.id === e.id ? e : ex));
+  const addInboxMessage = async (msg: Omit<InboxMessage, 'id' | 'date'>) => {
+    const { error } = await supabase.from('inbox').insert([{
+      name: msg.name,
+      email: msg.email,
+      subject: msg.subject,
+      message: msg.message
+    }]);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const deleteExperience = (id: number) => {
-    saveAndSetExperiences(experiences.filter(ex => ex.id !== id));
+  const deleteInboxMessage = async (id: number) => {
+    const { error } = await supabase.from('inbox').delete().eq('id', id);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const addCertificate = (c: Omit<CertificateData, 'id'>) => {
-    const newId = certificates.length > 0 ? Math.max(...certificates.map(ce => ce.id)) + 1 : 1;
-    saveAndSetCertificates([...certificates, { ...c, id: newId }]);
+  const updateSiteContent = async (sc: EditableSiteContent) => {
+    const { error } = await supabase.from('site_content').update(sc).eq('id', 1);
+    if (error) console.error(error);
+    else fetchAllData();
   };
 
-  const updateCertificate = (c: CertificateData) => {
-    saveAndSetCertificates(certificates.map(ce => ce.id === c.id ? c : ce));
-  };
+  const resetAllData = async () => {
+    try {
+      await supabase.from('projects').delete().neq('id', 0);
+      await supabase.from('experiences').delete().neq('id', 0);
+      await supabase.from('certificates').delete().neq('id', 0);
+      await supabase.from('inbox').delete().neq('id', 0);
+      
+      const { error: contentErr } = await supabase.from('site_content').update(defaultSiteContent).eq('id', 1);
+      if (contentErr) {
+        // If update failed (e.g. no row 1), try inserting
+        await supabase.from('site_content').insert([{ id: 1, ...defaultSiteContent }]);
+      }
 
-  const deleteCertificate = (id: number) => {
-    saveAndSetCertificates(certificates.filter(ce => ce.id !== id));
-  };
-
-  const addInboxMessage = (msg: Omit<InboxMessage, 'id' | 'date'>) => {
-    const newId = inbox.length > 0 ? Math.max(...inbox.map(m => m.id)) + 1 : 1;
-    const dateStr = new Date().toLocaleString();
-    saveAndSetInbox([{ ...msg, id: newId, date: dateStr }, ...inbox]);
-  };
-
-  const deleteInboxMessage = (id: number) => {
-    saveAndSetInbox(inbox.filter(m => m.id !== id));
-  };
-
-  const updateSiteContent = (sc: EditableSiteContent) => {
-    saveAndSetSiteContent(sc);
-  };
-
-  const resetAllData = () => {
-    localStorage.removeItem('portfolio_projects');
-    localStorage.removeItem('portfolio_experience');
-    localStorage.removeItem('portfolio_certificates');
-    localStorage.removeItem('portfolio_inbox');
-    localStorage.removeItem('portfolio_site_content');
-    setProjects(defaultProjects);
-    setExperiences(defaultExperiences);
-    setCertificates(defaultCertificates);
-    setInbox([]);
-    setSiteContent(defaultSiteContent);
+      await supabase.from('projects').insert(defaultProjects.map(({ id, ...rest }) => rest));
+      await supabase.from('experiences').insert(defaultExperiences.map(({ id, ...rest }) => rest));
+      await supabase.from('certificates').insert(defaultCertificates.map(({ id, ...rest }) => rest));
+      
+      await fetchAllData();
+    } catch (err) {
+      console.error('Error resetting Supabase data:', err);
+    }
   };
 
   return (
