@@ -59,11 +59,10 @@ export default function Education() {
               <div style={{ padding: '1.5rem' }}>
 
                 {/* Logo + nama institusi + gelar */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
                   {/* Logo */}
                   <div style={{
-                    width: 56, height: 56, flexShrink: 0,
-                    border: '1px solid #D4CFC8', background: '#F7F4EF',
+                    width: 110, height: 110, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden',
                   }}>
