@@ -39,14 +39,14 @@ export default function Header() {
   return (
     <header style={{ position: 'fixed', top: scrolled ? '0.75rem' : '1.25rem', left: '50%', transform: 'translateX(-50%)', zIndex: 50, transition: 'top 0.4s', width: '100%', maxWidth: '100vw', padding: '0 1rem' }}>
 
-      {/* Desktop — only visible on md+ screens */}
-      <nav style={{ display: 'none' }} className="header-desktop">
+      {/* Desktop — CSS class controls visibility (see index.css .header-desktop) */}
+      <nav className="header-desktop">
         <div style={{ ...pillStyle, display: 'flex', alignItems: 'center', gap: 2, padding: '0.4375rem 0.75rem', margin: '0 auto', width: 'fit-content', borderRadius: '9999px' }}>
           {navIds.map((id, i) => (
             <button key={id} onClick={() => go(id)} style={{
               padding: '0.375rem 0.75rem', borderRadius: '9999px', border: 'none', cursor: 'pointer',
-              background: active === id ? '#EEF2F8' : 'transparent',
-              color: active === id ? '#2D4E7A' : '#78716C',
+              background: active === id ? '#F0EBE3' : 'transparent',
+              color: active === id ? '#8B1A1A' : '#78716C',
               fontWeight: active === id ? 600 : 500, fontSize: '0.8125rem', fontFamily: 'inherit',
               transition: 'all 200ms', whiteSpace: 'nowrap',
             }}>
@@ -59,7 +59,7 @@ export default function Header() {
             border: '1px solid #E7E5E0', background: 'transparent', color: '#78716C', fontSize: '0.8125rem', fontWeight: 600,
             cursor: 'pointer', fontFamily: 'inherit', transition: 'all 200ms',
           }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#4F6A8F'; e.currentTarget.style.color = '#2D4E7A'; e.currentTarget.style.background = '#EEF2F8'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#8B1A1A'; e.currentTarget.style.color = '#8B1A1A'; e.currentTarget.style.background = '#F0EBE3'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#E7E5E0'; e.currentTarget.style.color = '#78716C'; e.currentTarget.style.background = 'transparent'; }}
           >
             {lang === 'id' ? '🇮🇩' : '🇬🇧'} {lang === 'id' ? 'EN' : 'ID'}
@@ -67,11 +67,11 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Mobile — only visible on small screens */}
-      <div className="header-mobile" style={{ display: 'none' }}>
+      {/* Mobile — CSS class controls visibility (see index.css .header-mobile) */}
+      <div className="header-mobile">
         <div style={{ ...pillStyle, display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.625rem 1rem', borderRadius: '9999px', maxWidth: '24rem', margin: '0 auto' }}>
           <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#1C1917', flex: 1 }}>Moch Zuhdi</span>
-          <button onClick={toggleLang} style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4F6A8F', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <button onClick={toggleLang} style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8B1A1A', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
             {lang === 'id' ? '🇮🇩 EN' : '🇬🇧 ID'}
           </button>
           <button onClick={() => setOpen(!open)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#57534E', display: 'flex', alignItems: 'center', padding: '0.25rem' }}>
@@ -84,7 +84,7 @@ export default function Header() {
           <div style={{ position: 'absolute', top: 'calc(100% + 0.5rem)', left: '1rem', right: '1rem', maxWidth: '24rem', margin: '0 auto', background: 'rgba(248,247,244,0.97)', backdropFilter: 'blur(16px)', border: '1px solid #E7E5E0', borderRadius: '1rem', boxShadow: '0 16px 40px rgba(28,25,23,0.12)', overflow: 'hidden' }}>
             <div style={{ padding: '0.5rem' }}>
               {navIds.map((id, i) => (
-                <button key={id} onClick={() => go(id)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.625rem 1rem', borderRadius: '0.625rem', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'inherit', fontWeight: active === id ? 600 : 400, background: active === id ? '#EEF2F8' : 'transparent', color: active === id ? '#2D4E7A' : '#57534E' }}>
+                <button key={id} onClick={() => go(id)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.625rem 1rem', borderRadius: '0.625rem', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'inherit', fontWeight: active === id ? 600 : 400, background: active === id ? '#F0EBE3' : 'transparent', color: active === id ? '#8B1A1A' : '#57534E' }}>
                   {labels[i]}
                 </button>
               ))}
@@ -93,11 +93,6 @@ export default function Header() {
         )}
       </div>
 
-      {/* Responsive: show desktop or mobile version */}
-      <style>{`
-        @media (min-width: 768px) { .header-desktop { display: block !important; } .header-mobile { display: none !important; } }
-        @media (max-width: 767px) { .header-desktop { display: none !important; } .header-mobile { display: block !important; } }
-      `}</style>
     </header>
   );
 }

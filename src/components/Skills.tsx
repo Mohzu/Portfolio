@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
+import { useReveal } from '../hooks/useReveal';
 
 const groups = [
   { category: 'Frontend', skills: ['HTML', 'CSS', 'JavaScript', 'Bootstrap', 'Tailwind CSS', 'React.js'] },
@@ -8,14 +9,6 @@ const groups = [
   { category: 'Tools', skills: ['Git', 'GitHub', 'Postman', 'VS Code', 'Laragon', 'Docker'] },
   { category: 'Mobile / Other', skills: ['Java', 'Android Studio', 'Unity', 'C#'] },
 ];
-
-const useReveal = (ref: React.RefObject<HTMLElement | null>) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.08 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref]);
-};
 
 export default function Skills() {
   const ref = useRef<HTMLElement>(null);

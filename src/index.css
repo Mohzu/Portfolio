@@ -249,3 +249,97 @@ body {
   background: rgba(26,25,22,0.7); backdrop-filter: blur(4px);
   z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
 }
+
+/* ==============================
+   PULSE ANIMATION (hero badge)
+============================== */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ==============================
+   HEADER — responsive show/hide
+============================== */
+.header-desktop { display: none; }
+.header-mobile  { display: block; }
+
+@media (min-width: 768px) {
+  .header-desktop { display: block; }
+  .header-mobile  { display: none;  }
+}
+
+/* ==============================
+   HERO — mobile grid collapse
+============================== */
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* On mobile: stack to single column, card goes on top */
+@media (max-width: 700px) {
+  .hero-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-card-col { order: -1; }
+}
+
+/* ==============================
+   PROJECTS — responsive grid
+============================== */
+.proj-row-featured {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.25rem;
+}
+.proj-row-horizontal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #D4CFC8;
+  background: #FDFCFA;
+  transition: box-shadow 200ms, transform 200ms;
+  cursor: pointer;
+}
+@media (max-width: 700px) {
+  .proj-row-featured { grid-template-columns: 1fr; }
+  .proj-row-horizontal { grid-template-columns: 1fr; }
+}
+
+/* ==============================
+   STATS TICKER (left → right)
+============================== */
+@keyframes ticker-ltr {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0%);   }
+}
+.stats-ticker-wrap {
+  overflow: hidden;
+  border-top: 1px solid #D4CFC8;
+  border-bottom: 1px solid #D4CFC8;
+  padding: 1.75rem 0;
+  margin-bottom: 3rem;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.stats-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-ltr 22s linear infinite;
+}
+.stats-ticker-wrap:hover .stats-ticker-track { animation-play-state: paused; }
+.stats-ticker-cell {
+  text-align: center;
+  padding: 0 3rem;
+  border-right: 1px solid #D4CFC8;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+.stats-ticker-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #8B1A1A;
+  margin: 0 2rem;
+  flex-shrink: 0;
+  align-self: center;
+}

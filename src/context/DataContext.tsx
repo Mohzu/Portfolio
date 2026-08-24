@@ -211,8 +211,8 @@ const defaultSiteContent: EditableSiteContent = {
   hero_role_id: 'Frontend & Mobile Developer',
   hero_available_en: 'AVAILABLE FOR INTERNSHIP',
   hero_available_id: 'TERSEDIA UNTUK MAGANG',
-  hero_description_en: 'Passionate about building intuitive digital experiences — from responsive web interfaces to mobile applications.',
-  hero_description_id: 'Bersemangat membangun pengalaman digital yang intuitif — dari antarmuka web responsif hingga aplikasi mobile.',
+  hero_description_en: 'Passionate about building intuitive digital experiences, from responsive web interfaces to cross-platform mobile applications.',
+  hero_description_id: 'Bersemangat membangun pengalaman digital yang intuitif, dari antarmuka web responsif hingga aplikasi mobile lintas platform.',
 
   // About
   about_heading_en: 'Building digital experiences that matter',

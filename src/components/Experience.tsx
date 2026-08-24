@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useData, ExperienceData } from '../context/DataContext';
+import { useReveal } from '../hooks/useReveal';
 
 type ItemType = 'Internship' | 'Organization' | 'Community';
 
@@ -8,14 +9,6 @@ const typeConfig: Record<ItemType, { label_key: string; marker: string }> = {
   Internship:   { label_key: 'internship_badge',   marker: 'A' },
   Organization: { label_key: 'organization_badge', marker: 'B' },
   Community:    { label_key: 'community_badge',     marker: 'C' },
-};
-
-const useReveal = (ref: React.RefObject<HTMLElement | null>, trigger?: any) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.06 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref, trigger]);
 };
 
 export default function Experience() {
@@ -69,7 +62,7 @@ export default function Experience() {
                 </span>
               </button>
 
-              {(['Internship', 'Organization', 'Community'] as ItemType[]).map(type => {
+              {(['Internship', 'Organization'] as ItemType[]).map(type => {
                 const cfg = typeConfig[type];
                 const label = ex[cfg.label_key as keyof typeof ex] as string;
                 const isSelected = filter === type;
@@ -98,7 +91,7 @@ export default function Experience() {
             {filteredItems.length === 0 ? (
               <div style={{ padding: '2rem', textAlign: 'center', borderTop: '3px solid #1A1916', borderBottom: '3px solid #1A1916' }}>
                 <p className="ed-body" style={{ fontStyle: 'italic' }}>
-                  {t.nav.home === 'Beranda' ? 'Tidak ada riwayat untuk kategori ini.' : 'No history found for this category.'}
+                  {lang === 'en' ? 'No history found for this category.' : 'Tidak ada riwayat untuk kategori ini.'}
                 </p>
               </div>
             ) : (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useData, ProjectData, ExperienceData, CertificateData, EditableSiteContent } from '../context/DataContext';
 import { supabase, uploadMedia } from '../supabaseClient';
 
@@ -79,6 +79,11 @@ export default function AdminDashboard() {
   const [uploadingProjImg, setUploadingProjImg] = useState(false);
   const [uploadingExpLogo, setUploadingExpLogo] = useState(false);
   const [uploadingCertImg, setUploadingCertImg] = useState(false);
+
+  // Refs for scrolling to the edit form when Edit is clicked
+  const projFormRef = useRef<HTMLFormElement>(null);
+  const expFormRef  = useRef<HTMLFormElement>(null);
+  const certFormRef = useRef<HTMLFormElement>(null);
 
   const handleProjImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -229,6 +234,7 @@ export default function AdminDashboard() {
       description_en: p.description_en,
       description_id: p.description_id
     });
+    setTimeout(() => projFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const startEditExp = (exp: ExperienceData) => {
@@ -242,6 +248,7 @@ export default function AdminDashboard() {
       contributions_id: exp.contributions_id.join('\n'),
       logo: exp.logo || ''
     });
+    setTimeout(() => expFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const startEditCert = (c: CertificateData) => {
@@ -253,6 +260,7 @@ export default function AdminDashboard() {
       category: c.category,
       image: c.image || ''
     });
+    setTimeout(() => certFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const handleDeleteProj = (id: number) => {
@@ -620,7 +628,7 @@ export default function AdminDashboard() {
           {activeTab === 'projects' && (
             <div>
               {/* Add/Edit Form */}
-              <form onSubmit={handleProjSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
+              <form ref={projFormRef} onSubmit={handleProjSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", margin: '0 0 1.25rem', fontSize: '1.25rem' }}>
                   {editingProj ? `Edit Project: ${editingProj.title}` : 'Draft New Project'}
                 </h3>
@@ -709,7 +717,7 @@ export default function AdminDashboard() {
           {activeTab === 'experience' && (
             <div>
               {/* Add/Edit Form */}
-              <form onSubmit={handleExpSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
+              <form ref={expFormRef} onSubmit={handleExpSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", margin: '0 0 1.25rem', fontSize: '1.25rem' }}>
                   {editingExp ? `Edit Experience: ${editingExp.organization}` : 'Publish New Experience'}
                 </h3>
@@ -798,7 +806,7 @@ export default function AdminDashboard() {
           {activeTab === 'certificates' && (
             <div>
               {/* Add/Edit Form */}
-              <form onSubmit={handleCertSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
+              <form ref={certFormRef} onSubmit={handleCertSubmit} style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', padding: '1.5rem', marginBottom: '2rem' }}>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", margin: '0 0 1.25rem', fontSize: '1.25rem' }}>
                   {editingCert ? `Edit Certificate: ${editingCert.name}` : 'Issue New Certificate'}
                 </h3>

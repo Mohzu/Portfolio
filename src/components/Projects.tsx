@@ -1,18 +1,63 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useData, ProjectData } from '../context/DataContext';
+import { useReveal } from '../hooks/useReveal';
 
-const useReveal = (ref: React.RefObject<HTMLElement | null>, trigger?: any) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.04 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref, trigger]);
-};
+// ─────────────────────────────────────────────────────────────
+// ProjCard MUST live outside Projects so its component identity
+// is stable across re-renders. If defined inside, every call to
+// setModal() creates a new component type → React unmounts the
+// old cards → .reveal class loses .visible → cards disappear.
+// ─────────────────────────────────────────────────────────────
+interface ProjCardProps {
+  proj: ProjectData;
+  size?: 'lg' | 'md' | 'sm';
+  delay?: number;
+  lang: string;
+  catLabel: (cat: string) => string;
+  onOpen: (id: number) => void;
+  viewCodeLabel: string;
+}
+
+function ProjCard({ proj, size = 'md', delay = 0, lang, catLabel, onOpen, viewCodeLabel }: ProjCardProps) {
+  const description = lang === 'en' ? proj.description_en : proj.description_id;
+  return (
+    <div
+      className={`reveal reveal-delay-${delay}`}
+      onClick={() => onOpen(proj.id)}
+      style={{ cursor: 'pointer', border: '1px solid #D4CFC8', background: '#FDFCFA', transition: 'box-shadow 200ms, transform 200ms' }}
+      onMouseEnter={e => { const el = e.currentTarget; el.style.boxShadow = '4px 4px 0 #1A1916'; el.style.transform = 'translate(-2px,-2px)'; }}
+      onMouseLeave={e => { const el = e.currentTarget; el.style.boxShadow = 'none'; el.style.transform = 'translate(0,0)'; }}
+    >
+      {/* Image */}
+      <div style={{ background: '#EAE8E3', height: size === 'lg' ? 260 : size === 'md' ? 200 : 160, overflow: 'hidden' }}>
+        <img src={proj.image} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+      {/* Info bar */}
+      <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #D4CFC8' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.375rem' }}>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8B1A1A', margin: 0 }}>
+            {catLabel(proj.category)}
+          </p>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 600, color: '#8B8480', whiteSpace: 'nowrap' }}>
+            {proj.tech[0] || ''} {proj.tech.length > 1 ? `+ ${proj.tech.length - 1} more` : ''}
+          </span>
+        </div>
+        <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: size === 'lg' ? '1.25rem' : '1rem', color: '#1A1916', marginBottom: '0.5rem' }}>{proj.title}</h3>
+        {size !== 'sm' && (
+          <p className="ed-body" style={{ fontSize: '0.8125rem', marginBottom: '0.75rem' }}>{description}</p>
+        )}
+        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+          {proj.tech.map(tech => <span key={tech} className="skill-badge">{tech}</span>)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Projects() {
   const [filter, setFilter] = useState('all');
-  const [modal, setModal] = useState<number|null>(null);
+  const [modal, setModal] = useState<number | null>(null);
   const ref = useRef<HTMLElement>(null);
   const { t, lang } = useLang();
   const { projects } = useData();
@@ -25,46 +70,14 @@ export default function Projects() {
   useReveal(ref, shown);
 
   const filters = [
-    { key:'all', label: p.filter_all },
-    { key:'web', label: p.filter_web },
-    { key:'mobile', label: p.filter_mobile },
-    { key:'game', label: p.filter_game },
+    { key: 'all',    label: p.filter_all },
+    { key: 'web',    label: p.filter_web },
+    { key: 'mobile', label: p.filter_mobile },
+    { key: 'game',   label: p.filter_game },
   ];
 
-  // Editorial project card
-  const ProjCard = ({ proj, size = 'md', delay = 0 }: { proj: ProjectData; size?: 'lg'|'md'|'sm'; delay?: number }) => {
-    const description = lang === 'en' ? proj.description_en : proj.description_id;
-    return (
-      <div className={`reveal reveal-delay-${delay}`} onClick={() => setModal(proj.id)}
-        style={{ cursor: 'pointer', border: '1px solid #D4CFC8', background: '#FDFCFA', transition: 'box-shadow 200ms, transform 200ms' }}
-        onMouseEnter={e => { const el = e.currentTarget; el.style.boxShadow = '4px 4px 0 #1A1916'; el.style.transform = 'translate(-2px,-2px)'; }}
-        onMouseLeave={e => { const el = e.currentTarget; el.style.boxShadow = 'none'; el.style.transform = 'translate(0,0)'; }}
-      >
-        {/* Image */}
-        <div style={{ background: '#EAE8E3', height: size === 'lg' ? 260 : size === 'md' ? 200 : 160, overflow: 'hidden' }}>
-          <img src={proj.image} alt={proj.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-        </div>
-        {/* Info bar */}
-        <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid #D4CFC8' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.375rem' }}>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8B1A1A', margin: 0 }}>
-              {catLabel(proj.category)}
-            </p>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 600, color: '#8B8480', whiteSpace: 'nowrap' }}>
-              {proj.tech[0] || ''} {proj.tech.length > 1 ? `+ ${proj.tech.length - 1} more` : ''}
-            </span>
-          </div>
-          <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: size === 'lg' ? '1.25rem' : '1rem', color: '#1A1916', marginBottom: '0.5rem' }}>{proj.title}</h3>
-          {size !== 'sm' && (
-            <p className="ed-body" style={{ fontSize: '0.8125rem', marginBottom: '0.75rem' }}>{description}</p>
-          )}
-          <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-            {proj.tech.map(t => <span key={t} className="skill-badge">{t}</span>)}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // Shared card props forwarded down (stable references — no closures over state)
+  const cardProps = { lang, catLabel, onOpen: setModal, viewCodeLabel: p.view_code };
 
   return (
     <>
@@ -90,13 +103,15 @@ export default function Projects() {
           {filter === 'all' && projects.length >= 3 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {/* Row 1: newspaper-style 3+2 split */}
-              <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '1.25rem' }}>
-                <ProjCard proj={projects[0]} size="lg" delay={1} />
-                <ProjCard proj={projects[1]} size="md" delay={2} />
+              <div className="proj-row-featured">
+                <ProjCard proj={projects[0]} size="lg" delay={1} {...cardProps} />
+                <ProjCard proj={projects[1]} size="md" delay={2} {...cardProps} />
               </div>
+
               {/* Row 2: horizontal article style */}
-              <div className="reveal reveal-delay-3" onClick={() => setModal(projects[2].id)}
-                style={{ cursor: 'pointer', display: 'grid', gridTemplateColumns: '1fr 1fr', border: '1px solid #D4CFC8', background: '#FDFCFA', transition: 'box-shadow 200ms, transform 200ms' }}
+              <div
+                className="reveal reveal-delay-3 proj-row-horizontal"
+                onClick={() => setModal(projects[2].id)}
                 onMouseEnter={e => { const el = e.currentTarget; el.style.boxShadow = '4px 4px 0 #1A1916'; el.style.transform = 'translate(-2px,-2px)'; }}
                 onMouseLeave={e => { const el = e.currentTarget; el.style.boxShadow = 'none'; el.style.transform = 'translate(0,0)'; }}
               >
@@ -110,7 +125,7 @@ export default function Projects() {
                   <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.5rem', color: '#1A1916', marginBottom: '0.75rem' }}>{projects[2].title}</h3>
                   <p className="ed-body" style={{ fontSize: '0.875rem', marginBottom: '1.25rem' }}>{lang === 'en' ? projects[2].description_en : projects[2].description_id}</p>
                   <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-                    {projects[2].tech.map(t => <span key={t} className="skill-badge">{t}</span>)}
+                    {projects[2].tech.map(tech => <span key={tech} className="skill-badge">{tech}</span>)}
                   </div>
                   <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <a href={projects[2].github} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
@@ -119,18 +134,19 @@ export default function Projects() {
                   </div>
                 </div>
               </div>
+
               {/* Row 3: remaining projects */}
               {projects.length > 3 && (
                 <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(projects.length - 3, 2)}, 1fr)`, gap: '1.25rem' }}>
                   {projects.slice(3).map((proj, i) => (
-                    <ProjCard key={proj.id} proj={proj} size="sm" delay={i + 4} />
+                    <ProjCard key={proj.id} proj={proj} size="sm" delay={i + 4} {...cardProps} />
                   ))}
                 </div>
               )}
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-              {shown.map((proj, i) => <ProjCard key={proj.id} proj={proj} delay={i + 1} />)}
+              {shown.map((proj, i) => <ProjCard key={proj.id} proj={proj} delay={i + 1} {...cardProps} />)}
             </div>
           )}
         </div>
@@ -139,25 +155,57 @@ export default function Projects() {
       {/* Modal */}
       {modalData && (
         <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', maxWidth: 640, width: '100%', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div
+            style={{ background: '#FDFCFA', border: '1px solid #D4CFC8', maxWidth: 640, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header bar */}
             <div style={{ background: '#1A1916', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.0625rem', color: '#F7F4EF', margin: 0 }}>{modalData.title}</p>
-              <button onClick={() => setModal(null)} style={{ background: 'none', border: '1px solid rgba(247,244,239,0.3)', color: '#F7F4EF', cursor: 'pointer', width: 30, height: 30, fontSize: '1rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8B1A1A', margin: 0 }}>
+                {cardProps.catLabel(modalData.category)}
+              </p>
+              <button
+                onClick={() => setModal(null)}
+                style={{ background: 'none', border: '1px solid rgba(247,244,239,0.3)', color: '#F7F4EF', cursor: 'pointer', width: 30, height: 30, fontSize: '1rem', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >×</button>
             </div>
+
+            {/* Project image */}
             <div style={{ background: '#EAE8E3' }}>
-              <img src={modalData.image} alt={modalData.title} style={{ width: '100%', maxHeight: '55vh', objectFit: 'contain', display: 'block' }} />
+              <img src={modalData.image} alt={modalData.title} style={{ width: '100%', maxHeight: '50vh', objectFit: 'contain', display: 'block' }} />
             </div>
-            <div style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid #D4CFC8' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
-                {modalData.tech.map(t => <span key={t} className="skill-badge">{t}</span>)}
+
+            {/* Body */}
+            <div style={{ padding: '1.5rem 1.5rem 1.25rem' }}>
+              {/* Title */}
+              <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.375rem', color: '#1A1916', margin: '0 0 1rem', lineHeight: 1.2 }}>
+                {modalData.title}
+              </h2>
+
+              {/* Description */}
+              <p className="ed-body" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.75 }}>
+                {cardProps.lang === 'en' ? modalData.description_en : modalData.description_id}
+              </p>
+
+              {/* Divider */}
+              <hr style={{ border: 'none', borderTop: '1px solid #D4CFC8', margin: '0 0 1.25rem' }} />
+
+              {/* Tech stack + CTA */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                  {modalData.tech.map(tech => <span key={tech} className="skill-badge">{tech}</span>)}
+                </div>
+                {modalData.github && modalData.github !== '#' && (
+                  <a href={modalData.github} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
+                    {p.view_code} →
+                  </a>
+                )}
               </div>
-              <a href={modalData.github} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
-                {p.view_code} →
-              </a>
             </div>
           </div>
         </div>
       )}
+
     </>
   );
 }

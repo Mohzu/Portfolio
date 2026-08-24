@@ -1,23 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useData, CertificateData } from '../context/DataContext';
+import { useReveal } from '../hooks/useReveal';
 
 const catStyle: Record<string, { bg: string; text: string }> = {
-  'Web Development': { bg:'#EEF2F8', text:'#2D4E7A' },
-  'Backend':         { bg:'#EEF5EE', text:'#3D5A3D' },
-  'Programming':     { bg:'#F7F0EA', text:'#6B4E37' },
-  'Frontend':        { bg:'#EEF2F8', text:'#2D4E7A' },
-  'Mobile':          { bg:'#F4F0FA', text:'#5B3E8A' },
-  'Tools':           { bg:'#F8F7F4', text:'#57534E' },
+  'Web Development': { bg: '#F0EBE3', text: '#8B1A1A' },
+  'Backend':         { bg: '#EEF5EE', text: '#3D5A3D' },
+  'Programming':     { bg: '#F7F0EA', text: '#6B4E37' },
+  'Frontend':        { bg: '#F0EBE3', text: '#8B1A1A' },
+  'Mobile':          { bg: '#F4F0FA', text: '#5B3E8A' },
+  'Tools':           { bg: '#F8F7F4', text: '#57534E' },
 };
 
-const useReveal = (ref: React.RefObject<HTMLElement | null>, trigger?: any) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.08 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref, trigger]);
-};
 
 export default function Certificates() {
   const [sel, setSel] = useState<number|null>(null);
@@ -31,7 +25,7 @@ export default function Certificates() {
   return (
     <>
       <section id="certificates" ref={ref} className="section-paper">
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 clamp(1.25rem, 5vw, 3rem)' }}>
+        <div className="section-container">
 
           <div className="reveal section-masthead" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
             <span className="ed-kicker">06 — {c.label}</span>

@@ -16,7 +16,7 @@ export default function Footer() {
 
   return (
     <footer style={{ background:'#1A1916', borderTop:'3px solid #1A1916', padding: '4rem 0 2rem' }}>
-      <div style={{ maxWidth:1160, margin:'0 auto', padding:'0 clamp(1.5rem,5vw,3rem)' }}>
+      <div className="section-container">
         
         {/* Top thicker line */}
         <div style={{ borderBottom:'1px solid rgba(247,244,239,0.1)', paddingBottom:'3rem', display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'3rem' }}>

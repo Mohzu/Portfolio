@@ -1,14 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
+import { useReveal } from '../hooks/useReveal';
 
-const useReveal = (ref: React.RefObject<HTMLElement | null>, trigger?: any) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.07 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref, trigger]);
-};
+// Logo dan IPK di-hardcode di sini karena belum ada field-nya di database.
+// Ganti nilai ini sesuai kebutuhan.
+const EDU_LOGO   = '/img/unpas.png';   // letakkan file di public/img/unpas.png
+const EDU_GPA    = '3.72';             // nilai IPK
+const EDU_GPA_MAX = '4.00';
 
 export default function Education() {
   const ref = useRef<HTMLElement>(null);
@@ -18,13 +17,20 @@ export default function Education() {
   const e = t.education;
 
   // Fallbacks
-  const headingText = siteContent ? (lang === 'en' ? siteContent.edu_heading_en : siteContent.edu_heading_id) : e.heading;
+  const headingText     = siteContent ? (lang === 'en' ? siteContent.edu_heading_en     : siteContent.edu_heading_id)     : e.heading;
   const descriptionText = siteContent ? (lang === 'en' ? siteContent.edu_description_en : siteContent.edu_description_id) : e.description;
-  const statusText = siteContent ? (lang === 'en' ? siteContent.edu_status_en : siteContent.edu_status_id) : e.status;
+  const statusText      = siteContent ? (lang === 'en' ? siteContent.edu_status_en      : siteContent.edu_status_id)      : e.status;
   const institutionText = siteContent ? siteContent.edu_institution : e.institution;
-  const degreeText = siteContent ? (lang === 'en' ? siteContent.edu_degree_en : siteContent.edu_degree_id) : e.degree;
-  const periodText = siteContent ? siteContent.edu_period : e.period;
-  const focusText = siteContent ? (lang === 'en' ? siteContent.edu_focus_en : siteContent.edu_focus_id) : e.focus;
+  const degreeText      = siteContent ? (lang === 'en' ? siteContent.edu_degree_en      : siteContent.edu_degree_id)      : e.degree;
+  const periodText      = siteContent ? siteContent.edu_period : e.period;
+  const focusText       = siteContent ? (lang === 'en' ? siteContent.edu_focus_en       : siteContent.edu_focus_id)       : e.focus;
+
+  const rows = [
+    { label: lang === 'en' ? 'Period'     : 'Periode',    value: periodText },
+    { label: lang === 'en' ? 'Location'   : 'Lokasi',     value: e.location },
+    { label: lang === 'en' ? 'Focus Area' : 'Fokus Studi',value: focusText  },
+    { label: 'GPA / IPK',                                  value: `${EDU_GPA} / ${EDU_GPA_MAX}` },
+  ];
 
   return (
     <section id="education" ref={ref} className="section-paper">
@@ -42,30 +48,63 @@ export default function Education() {
           </div>
 
           <div className="reveal reveal-delay-2">
-            {/* Editorial record card — like a diploma entry in a newspaper */}
+            {/* Editorial record card */}
             <div style={{ border: '1px solid #D4CFC8', background: '#FDFCFA' }}>
-              {/* Header bar */}
+
+              {/* Header bar — dark, dengan status */}
               <div style={{ background: '#1A1916', padding: '0.75rem 1.25rem' }}>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#F7F4EF', margin: 0 }}>
                   Academic Record — {statusText}
                 </p>
               </div>
+
               {/* Body */}
               <div style={{ padding: '1.5rem' }}>
-                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.375rem', fontWeight: 700, color: '#1A1916', marginBottom: '0.25rem' }}>{institutionText}</h3>
-                <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '1rem', fontStyle: 'italic', color: '#3A3530', marginBottom: '1.5rem' }}>{degreeText}</p>
 
+                {/* Logo + nama institusi + gelar */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
+                  {/* Logo */}
+                  <div style={{
+                    width: 56, height: 56, flexShrink: 0,
+                    border: '1px solid #D4CFC8', background: '#F7F4EF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    overflow: 'hidden',
+                  }}>
+                    <img
+                      src={EDU_LOGO}
+                      alt={institutionText}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  </div>
+
+                  {/* Teks institusi */}
+                  <div>
+                    <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', fontWeight: 700, color: '#1A1916', margin: '0 0 0.2rem' }}>
+                      {institutionText}
+                    </h3>
+                    <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.9375rem', fontStyle: 'italic', color: '#3A3530', margin: 0 }}>
+                      {degreeText}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Detail rows */}
                 <div style={{ borderTop: '1px solid #D4CFC8', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-                  {[
-                    { label: 'Period', value: periodText },
-                    { label: 'Location', value: e.location },
-                    { label: 'Focus Area', value: focusText },
-                  ].map((row, i) => (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 1fr', gap: '0.75rem' }}>
+                  {rows.map((row, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '7rem 1fr', gap: '0.75rem' }}>
                       <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8B8480', paddingTop: '0.125rem' }}>
                         {row.label}
                       </span>
-                      <span className="ed-body" style={{ fontSize: '0.875rem', borderLeft: '1px solid #D4CFC8', paddingLeft: '0.75rem' }}>{row.value}</span>
+                      <span className="ed-body" style={{
+                        fontSize: '0.875rem',
+                        borderLeft: '1px solid #D4CFC8',
+                        paddingLeft: '0.75rem',
+                        // highlight IPK
+                        ...(row.label === 'GPA / IPK' ? { fontWeight: 700, color: '#8B1A1A', fontFamily: "'Playfair Display', serif" } : {}),
+                      }}>
+                        {row.value}
+                      </span>
                     </div>
                   ))}
                 </div>

@@ -1,14 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
+import { useReveal } from '../hooks/useReveal';
 
-const useReveal = (ref: React.RefObject<HTMLElement | null>) => {
-  useEffect(() => {
-    const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.06 });
-    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [ref]);
-};
 
 export default function Contact() {
   const [form, setForm] = useState({ name:'', email:'', subject:'', message:'' });
@@ -42,7 +36,7 @@ export default function Contact() {
 
   return (
     <section id="contact" ref={ref} className="section-white">
-      <div style={{ maxWidth:1160, margin:'0 auto', padding:'0 clamp(1.25rem,5vw,3rem)' }}>
+      <div className="section-container">
 
         <div className="reveal section-masthead" style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
           <span className="ed-kicker">07 — {c.label}</span>
