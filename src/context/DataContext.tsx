@@ -311,7 +311,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateProject = async (p: ProjectData) => {
-    const { error } = await supabase.from('projects').update(p).eq('id', p.id);
+    const { id, ...rest } = p;
+    const { error } = await supabase.from('projects').update(rest).eq('id', id);
     if (error) console.error(error);
     else fetchAllData();
   };
@@ -329,7 +330,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateExperience = async (e: ExperienceData) => {
-    const { error } = await supabase.from('experiences').update(e).eq('id', e.id);
+    const { id, ...rest } = e;
+    const { error } = await supabase.from('experiences').update(rest).eq('id', id);
     if (error) console.error(error);
     else fetchAllData();
   };
@@ -347,7 +349,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateCertificate = async (c: CertificateData) => {
-    const { error } = await supabase.from('certificates').update(c).eq('id', c.id);
+    const { id, ...rest } = c;
+    const { error } = await supabase.from('certificates').update(rest).eq('id', id);
     if (error) console.error(error);
     else fetchAllData();
   };
@@ -376,7 +379,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateSiteContent = async (sc: EditableSiteContent) => {
-    const { error } = await supabase.from('site_content').update(sc).eq('id', 1);
+    const { id, ...rest } = sc as any;
+    const { error } = await supabase.from('site_content').update(rest).eq('id', 1);
     if (error) console.error(error);
     else fetchAllData();
   };
