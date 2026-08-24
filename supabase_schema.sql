@@ -90,7 +90,9 @@ create table if not exists site_content (
   edu_focus_en text,
   edu_focus_id text,
   edu_status_en text,
-  edu_status_id text
+  edu_status_id text,
+  edu_logo text,
+  edu_gpa text
 );
 
 -- 6. Enable Row Level Security (RLS) and define secure policies
@@ -148,7 +150,8 @@ insert into site_content (
   edu_degree_en, edu_degree_id,
   edu_institution, edu_period,
   edu_focus_en, edu_focus_id,
-  edu_status_en, edu_status_id
+  edu_status_en, edu_status_id,
+  edu_logo, edu_gpa
 ) values (
   1,
   'Hi, I''m', 'Hai, Saya',
@@ -172,7 +175,8 @@ insert into site_content (
   'Universitas Pasundan', '2022 – Present',
   'Focused on software engineering, algorithms, software design, and web & mobile technology.',
   'Fokus pada rekayasa perangkat lunak, algoritma, desain perangkat lunak, serta teknologi web & mobile.',
-  'Active Student', 'Mahasiswa Aktif'
+  'Active Student', 'Mahasiswa Aktif',
+  '/img/unpas.png', '3.72'
 ) on conflict (id) do nothing;
 
 -- 8. Seed default projects

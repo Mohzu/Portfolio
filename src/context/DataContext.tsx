@@ -247,7 +247,9 @@ const defaultSiteContent: EditableSiteContent = {
   edu_focus_en: 'Focused on software engineering, algorithms, software design, and web & mobile technology.',
   edu_focus_id: 'Fokus pada rekayasa perangkat lunak, algoritma, desain perangkat lunak, serta teknologi web & mobile.',
   edu_status_en: 'Active Student',
-  edu_status_id: 'Mahasiswa Aktif'
+  edu_status_id: 'Mahasiswa Aktif',
+  edu_logo: '/img/unpas.png',
+  edu_gpa: '3.72'
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);

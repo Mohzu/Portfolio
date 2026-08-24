@@ -3,12 +3,6 @@ import { useLang } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useReveal } from '../hooks/useReveal';
 
-// Logo dan IPK di-hardcode di sini karena belum ada field-nya di database.
-// Ganti nilai ini sesuai kebutuhan.
-const EDU_LOGO   = '/img/unpas.png';   // letakkan file di public/img/unpas.png
-const EDU_GPA    = '3.72';             // nilai IPK
-const EDU_GPA_MAX = '4.00';
-
 export default function Education() {
   const ref = useRef<HTMLElement>(null);
   const { t, lang } = useLang();
@@ -24,12 +18,15 @@ export default function Education() {
   const degreeText      = siteContent ? (lang === 'en' ? siteContent.edu_degree_en      : siteContent.edu_degree_id)      : e.degree;
   const periodText      = siteContent ? siteContent.edu_period : e.period;
   const focusText       = siteContent ? (lang === 'en' ? siteContent.edu_focus_en       : siteContent.edu_focus_id)       : e.focus;
+  
+  const logoUrl         = siteContent?.edu_logo || '/img/unpas.png';
+  const gpaText         = siteContent?.edu_gpa || '3.72';
 
   const rows = [
     { label: lang === 'en' ? 'Period'     : 'Periode',    value: periodText },
     { label: lang === 'en' ? 'Location'   : 'Lokasi',     value: e.location },
     { label: lang === 'en' ? 'Focus Area' : 'Fokus Studi',value: focusText  },
-    { label: 'GPA / IPK',                                  value: `${EDU_GPA} / ${EDU_GPA_MAX}` },
+    { label: 'GPA / IPK',                                  value: `${gpaText} / 4.00` },
   ];
 
   return (
@@ -71,7 +68,7 @@ export default function Education() {
                     overflow: 'hidden',
                   }}>
                     <img
-                      src={EDU_LOGO}
+                      src={logoUrl}
                       alt={institutionText}
                       style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}

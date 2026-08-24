@@ -79,6 +79,7 @@ export default function AdminDashboard() {
   const [uploadingProjImg, setUploadingProjImg] = useState(false);
   const [uploadingExpLogo, setUploadingExpLogo] = useState(false);
   const [uploadingCertImg, setUploadingCertImg] = useState(false);
+  const [uploadingEduLogo, setUploadingEduLogo] = useState(false);
 
   // Refs for scrolling to the edit form when Edit is clicked
   const projFormRef = useRef<HTMLFormElement>(null);
@@ -125,6 +126,22 @@ export default function AdminDashboard() {
       showNotification('Failed to upload certificate image.');
     }
     setUploadingCertImg(false);
+  };
+
+  const handleEduLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingEduLogo(true);
+    const url = await uploadMedia(file);
+    if (url) {
+      if (genForm) {
+        setGenForm({ ...genForm, edu_logo: url });
+      }
+      showNotification('Academic logo uploaded successfully!');
+    } else {
+      showNotification('Failed to upload academic logo.');
+    }
+    setUploadingEduLogo(false);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -614,6 +631,23 @@ export default function AdminDashboard() {
                   <div>
                     <label style={labelStyle}>Status (ID)</label>
                     <input type="text" value={genForm.edu_status_id} onChange={e => setGenForm({ ...genForm, edu_status_id: e.target.value })} style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Academic GPA / IPK</label>
+                    <input type="text" value={genForm.edu_gpa || ''} onChange={e => setGenForm({ ...genForm, edu_gpa: e.target.value })} style={inputStyle} placeholder="e.g. 3.72" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Academic Logo</label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input type="text" value={genForm.edu_logo || ''} onChange={e => setGenForm({ ...genForm, edu_logo: e.target.value })} style={inputStyle} placeholder="e.g. /img/unpas.png" />
+                      <label className="btn-outline" style={{ display: 'flex', alignItems: 'center', padding: '0 0.75rem', fontSize: '0.75rem', cursor: 'pointer', whiteSpace: 'nowrap', border: '1px solid #D4CFC8', height: '34px', background: '#FDFCFA' }}>
+                        {uploadingEduLogo ? 'Uploading...' : 'Upload'}
+                        <input type="file" accept="image/*" onChange={handleEduLogoUpload} style={{ display: 'none' }} />
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
