@@ -207,8 +207,8 @@ const defaultSiteContent: EditableSiteContent = {
   // Hero
   hero_greeting_en: "Hi, I'm",
   hero_greeting_id: 'Hai, Saya',
-  hero_role_en: 'Frontend & Mobile Developer',
-  hero_role_id: 'Frontend & Mobile Developer',
+  hero_role_en: 'Fullstack Developer & Mobile Developer',
+  hero_role_id: 'Fullstack Developer & Mobile Developer',
   hero_available_en: 'AVAILABLE FOR INTERNSHIP',
   hero_available_id: 'TERSEDIA UNTUK MAGANG',
   hero_description_en: 'Passionate about building intuitive digital experiences, from responsive web interfaces to cross-platform mobile applications.',

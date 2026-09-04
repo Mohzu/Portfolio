@@ -168,7 +168,7 @@ const Hero = () => {
                 {t.hero.cta_projects} →
               </button>
               <a
-                href="https://drive.google.com/file/d/1MbItkNmiDXwZKqLcK8rfcFbKdiCeLxlp/view?usp=sharing"
+                href="https://drive.google.com/file/d/19GapB2ZDOtZfs8dlHSIbTGMhQ54NN7yU/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-outline"
@@ -239,7 +239,7 @@ const Hero = () => {
                 textAlign: 'center',
               }}
             >
-              Frontend &amp; Mobile Developer
+              Fullstack Developer &amp; Mobile Developer
             </p>
           </div>
         </div>

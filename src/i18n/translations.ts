@@ -17,7 +17,7 @@ export const translations = {
     // Hero
     hero: {
       greeting: "Hi, I'm",
-      role: 'Frontend & Mobile Developer',
+      role: 'Fullstack Developer & Mobile Developer',
       available: 'Available for Internship',
       description:
         'Passionate about building intuitive digital experiences — from responsive web interfaces to mobile applications.',
@@ -210,7 +210,7 @@ export const translations = {
 
     // Footer
     footer: {
-      tagline: 'Frontend & Mobile Developer',
+      tagline: 'Fullstack Developer & Mobile Developer',
       description: 'Informatics Engineering student passionate about building high-quality digital solutions.',
       quick_links: 'Quick Links',
       get_in_touch: 'Get In Touch',
@@ -236,7 +236,7 @@ export const translations = {
 
     hero: {
       greeting: 'Hai, Saya',
-      role: 'Frontend & Mobile Developer',
+      role: 'Fullstack Developer & Mobile Developer',
       available: 'Tersedia untuk Magang',
       description:
         'Bersemangat membangun pengalaman digital yang intuitif — dari antarmuka web responsif hingga aplikasi mobile.',
@@ -421,7 +421,7 @@ export const translations = {
     },
 
     footer: {
-      tagline: 'Frontend & Mobile Developer',
+      tagline: 'Fullstack Developer & Mobile Developer',
       description: 'Mahasiswa Teknik Informatika yang bersemangat membangun solusi digital berkualitas tinggi.',
       quick_links: 'Tautan Cepat',
       get_in_touch: 'Hubungi Saya',
